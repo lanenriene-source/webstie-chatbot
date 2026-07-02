@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f7fb;
+}
+
+#chatbot{
+    width:100%;
+    max-width:750px;
+    height:700px;
+    margin:auto;
+    display:flex;
+    flex-direction:column;
+    border-radius:20px;
+    overflow:hidden;
+    background:white;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+}
+
+#header{
+    background:#6C63FF;
+    color:white;
+    padding:18px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+#messages{
+    flex:1;
+    overflow-y:auto;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.message{
+    max-width:80%;
+    padding:12px 16px;
+    border-radius:18px;
+    line-height:1.5;
+    white-space:pre-wrap;
+}
+
+.bot{
+    align-self:flex-start;
+    background:#ECEEF6;
+    border-bottom-left-radius:5px;
+}
+
+.user{
+    align-self:flex-end;
+    background:#6C63FF;
+    color:white;
+    border-bottom-right-radius:5px;
+}
+
+#prompts{
+    padding:15px;
+    border-top:1px solid #ddd;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    background:white;
+}
+
+.prompt-btn{
+    border:none;
+    padding:10px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    background:#ECEEF6;
+    transition:0.2s;
+}
+
+.prompt-btn:hover{
+    transform:scale(1.03);
+}
+
+.back-btn{
+    background:#FFD966;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="chatbot">
+
+    <div id="header">
+        DTRH Fandom Assistant
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="prompts"></div>
+
+</div>
+
+<script>
+
+const faqData = {
+
+"General Fandom Questions":{
+
+"What is fandom etiquette?":
+"These are unspoken rules that older fans generally expect newer fans to follow when entering fandom spaces. The number one golden rule is:\n\n'Don't like? Just block!'",
+
+"Are there any fandom taboos I should keep in mind?":
+"This applies especially to Korean fandoms. Sharing unofficial translations, screenshots, or even unofficial titles is often frowned upon and may upset some fans.",
+
+"Why should I buy from official sources?":
+"Supporting official releases helps creators and artists continue creating the stories that fans love."
+},
+
+"Website-related Questions":{
+
+"What does this site actually do?":
+"DTRH helps fans participate more actively in their fandoms and discover even more fandoms to follow.",
+
+"Why was this website created?":
+"The site was created to help newer fans avoid the difficulties of finding content and fellow fans.",
+
+"Who were the characters used in the guide videos?":
+"The guide videos use Houshou Marine and Amane Kanata from Hololive.",
+
+"What types of content can I find using this website?":
+"You can find guides, merchandise information, fan event information and recommendations."
+},
+
+"Guide-related Questions":{
+
+"Where do I look for unofficial content translations?":
+"Some examples include Mangago and NovelUpdates.",
+
+"Where do I look for official content translations?":
+"Common platforms include Crunchyroll, Tapas and iQIYI.",
+
+"Where do I look for raws for non-English content?":
+"Kakaopage is commonly used for Korean content while JJWXC is commonly used for Chinese novels.",
+
+"Where should I go to look for official merchandise?":
+"Following official publisher social media accounts is usually the best method.",
+
+"How do I top-up points in official Korean sites?":
+"Using the official app and Google Pay is usually the easiest method.",
+
+"How do I top-up points in official English sites?":
+"Using the official app and Google Pay is usually the easiest method.",
+
+"How do I top-up points in official Chinese sites?":
+"Using the official app and Google Pay is usually the easiest method.",
+
+"How do I top-up points in official Japanese sites?":
+"Using the official app and Google Pay is usually the easiest method.",
+
+"How do I do adult verification for overseas websites?":
+"Most sites require passport verification through a form or email process.",
+
+"How can I get points for free on official English websites?":
+"Many global platforms provide daily free points through advertisements.",
+
+"How do I get points for free on non-English websites?":
+"Methods differ by platform and may include quests, games or daily rewards.",
+
+"Where do I buy fan-made merchandise from?":
+"Fan artists commonly sell merchandise at conventions, group orders or through social media."
+},
+
+"Recommendations":{
+
+"What are some recommended titles for newbies to C-novels?":
+"Chinese readers often recommend martial arts novels and titles like Lord of the Mysteries.",
+
+"What are some recommended titles for newbies to K-novels?":
+"The famous 'holy trinity' consists of Omniscient Reader, My S-Class Hunters and Lout of the Count's Family.",
+
+"Where can I find other people who have the same interests as me?":
+"X, Instagram and Tumblr are excellent places to meet fellow fans.",
+
+"Which official websites are most recommended for people to use?":
+"Popular choices include Tapas, Webtoon, Crunchyroll and WuxiaWorld.",
+
+"Which unofficial websites are most recommended for people to use?":
+"NovelUpdates and Mangago are among the most commonly used options.",
+
+"Where can I find fan events for my fandom in my area?":
+"Convention websites, ticketing platforms and social media are usually the best places to look."
+}
+
+};
+
+const messages = document.getElementById("messages");
+const prompts = document.getElementById("prompts");
+
+function addMessage(text,type){
+    const msg=document.createElement("div");
+    msg.className=`message ${type}`;
+    msg.innerText=text;
+    messages.appendChild(msg);
+    messages.scrollTop=messages.scrollHeight;
+}
+
+function showCategories(){
+
+    prompts.innerHTML="";
+
+    Object.keys(faqData).forEach(category=>{
+
+        const btn=document.createElement("button");
+        btn.className="prompt-btn";
+        btn.innerText=category;
+
+        btn.onclick=()=>{
+            addMessage(category,"user");
+            showQuestions(category);
+        };
+
+        prompts.appendChild(btn);
+    });
+}
+
+function showQuestions(category){
+
+    prompts.innerHTML="";
+
+    const back=document.createElement("button");
+    back.className="prompt-btn back-btn";
+    back.innerText="⬅ Back";
+
+    back.onclick=()=>{
+        addMessage("Back to categories","user");
+        showCategories();
+    };
+
+    prompts.appendChild(back);
+
+    Object.keys(faqData[category]).forEach(question=>{
+
+        const btn=document.createElement("button");
+        btn.className="prompt-btn";
+        btn.innerText=question;
+
+        btn.onclick=()=>{
+
+            addMessage(question,"user");
+
+            setTimeout(()=>{
+                addMessage(faqData[category][question],"bot");
+            },500);
+        };
+
+        prompts.appendChild(btn);
+    });
+}
+
+addMessage(
+"Hello! 👋\n\nWelcome to the DTRH Fandom Assistant.\n\nPlease select a category below to begin.",
+"bot"
+);
+
+showCategories();
+
+</script>
+
+</body>
+</html>
